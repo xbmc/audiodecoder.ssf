@@ -208,6 +208,7 @@ static int psf_file_fseek( void * handle, int64_t offset, int whence )
 static int psf_file_fclose( void * handle )
 {
   XBMC->CloseFile(handle);
+  return 0;
 }
 
 static long psf_file_ftell( void * handle )
@@ -311,6 +312,8 @@ static int psf_info_meta(void* context,
     ssf->title = value;
   if (!strcasecmp(name, "artist"))
     ssf->artist = value;
+
+  return 0;
 }
 
 void* Init(const char* strFile, unsigned int filecache, int* channels,
@@ -445,6 +448,8 @@ bool DeInit(void* context)
   if (yam)
     yam_unprepare_dynacode(yam);
   delete ssf;
+
+  return true;
 }
 
 bool ReadTag(const char* strFile, char* title, char* artist, int* length)
