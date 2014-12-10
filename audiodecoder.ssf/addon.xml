@@ -10,7 +10,7 @@
   <extension
     point="kodi.audiodecoder"
     name="ssf"
-    extension=".ssf|.minissf|.dsf|.minidsf"
+    extension=".ssf|.minissf|.minidsf"
     tags="true"
     library_linux="audiodecoder.ssf.so"/>
   <extension point="xbmc.addon.metadata">
