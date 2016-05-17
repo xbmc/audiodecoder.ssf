@@ -12,10 +12,10 @@
     name="ssf"
     extension=".ssf|.minissf|.minidsf"
     tags="true"
-    library_linux="audiodecoder.ssf.so"/>
+    library_@PLATFORM@="@LIBRARY_FILENAME@"/>
   <extension point="xbmc.addon.metadata">
     <summary lang="en">SSF/DSF Audio Decoder</summary>
     <description lang="en">SSF/DSF Audio Decoder</description>
-    <platform>all</platform>
+    <platform>@PLATFORM@</platform>
   </extension>
 </addon>
