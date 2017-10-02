@@ -17,61 +17,13 @@
  *
  */
 
-#include "libXBMC_addon.h"
+#include <kodi/addon-instance/AudioDecoder.h>
+#include <kodi/Filesystem.h>
 #include "sega.h"
 #include "dcsound.h"
 #include "satsound.h"
 #include "yam.h"
 #include "psflib.h"
-
-extern "C" {
-#include <stdio.h>
-#include <stdint.h>
-
-#include "kodi_audiodec_dll.h"
-
-ADDON::CHelper_libXBMC_addon *XBMC           = NULL;
-
-ADDON_STATUS ADDON_Create(void* hdl, void* props)
-{
-  if (!XBMC)
-    XBMC = new ADDON::CHelper_libXBMC_addon;
-
-  if (!XBMC->RegisterMe(hdl))
-  {
-    delete XBMC, XBMC=NULL;
-    return ADDON_STATUS_PERMANENT_FAILURE;
-  }
-
-  return ADDON_STATUS_OK;
-}
-
-//-- Destroy ------------------------------------------------------------------
-// Do everything before unload of this add-on
-// !!! Add-on master function !!!
-//-----------------------------------------------------------------------------
-void ADDON_Destroy()
-{
-  XBMC=NULL;
-}
-
-//-- GetStatus ---------------------------------------------------------------
-// Returns the current Status of this visualisation
-// !!! Add-on master function !!!
-//-----------------------------------------------------------------------------
-ADDON_STATUS ADDON_GetStatus()
-{
-  return ADDON_STATUS_OK;
-}
-
-//-- SetSetting ---------------------------------------------------------------
-// Set a specific Setting value (called from XBMC)
-// !!! Add-on master function !!!
-//-----------------------------------------------------------------------------
-ADDON_STATUS ADDON_SetSetting(const char *strSetting, const void* value)
-{
-  return ADDON_STATUS_OK;
-}
 
 struct sdsf_load_state
 {
@@ -89,6 +41,9 @@ struct SSFContext
   std::vector<uint8_t> sega_state;
   int version;
 };
+
+extern "C"
+{
 
 inline unsigned get_le32( void const* p )
 {
@@ -149,28 +104,39 @@ static int sdsf_load(void * context, const uint8_t * exe, size_t exe_size,
 
 static void * psf_file_fopen( const char * uri )
 {
-  return  XBMC->OpenFile(uri, 0);
+  kodi::vfs::CFile* file = new kodi::vfs::CFile;
+  if (!file->OpenFile(uri, 0))
+  {
+    delete file;
+    return nullptr;
+  }
+
+  return file;
 }
 
 static size_t psf_file_fread( void * buffer, size_t size, size_t count, void * handle )
 {
-  return XBMC->ReadFile(handle, buffer, size*count);
+  kodi::vfs::CFile* file = static_cast<kodi::vfs::CFile*>(handle);
+  return file->Read(buffer, size*count);
 }
 
 static int psf_file_fseek( void * handle, int64_t offset, int whence )
 {
-  return XBMC->SeekFile(handle, offset, whence) > -1?0:-1;
+  kodi::vfs::CFile* file = static_cast<kodi::vfs::CFile*>(handle);
+  return file->Seek(offset, whence) > -1 ? 0 : -1;
 }
 
 static int psf_file_fclose( void * handle )
 {
-  XBMC->CloseFile(handle);
+  delete static_cast<kodi::vfs::CFile*>(handle);
+
   return 0;
 }
 
 static long psf_file_ftell( void * handle )
 {
-  return XBMC->GetFilePosition(handle);
+  kodi::vfs::CFile* file = static_cast<kodi::vfs::CFile*>(handle);
+  return file->GetPosition();
 }
 
 const psf_file_callbacks psf_file_system =
@@ -273,163 +239,174 @@ static int psf_info_meta(void* context,
   return 0;
 }
 
-void* Init(const char* strFile, unsigned int filecache, int* channels,
-           int* samplerate, int* bitspersample, int64_t* totaltime,
-           int* bitrate, AEDataFormat* format, const AEChannel** channelinfo)
-{
-  SSFContext* result = new SSFContext;
-  result->pos = 0;
-  if ((result->version=psf_load(strFile, &psf_file_system, 0, 0, 0, 0, 0, 0)) <= 0 ||
-      !(result->version == 0x11 || result->version == 0x12))
-    return NULL;
-
-  if (psf_load(strFile, &psf_file_system, result->version,
-               0, 0, psf_info_meta, result, 0) <= 0)
-  {
-    delete result;
-    return NULL;
-  }
-
-  if (psf_load(strFile, &psf_file_system, result->version,
-               sdsf_load, &result->state, 0, 0, 0) < 0)
-  {
-    delete result;
-    return NULL;
-  }
-
-  sega_init();
-  result->sega_state.resize(sega_get_state_size(result->version-0x10));
-  void* emu = &result->sega_state[0];
-  sega_clear_state(emu, result->version-0x10);
-  sega_enable_dry(emu, 0);
-  sega_enable_dsp(emu, 1);
-  sega_enable_dsp_dynarec(emu, 1);
-
-  void * yam = 0;
-  if (result->version == 0x12)
-  {
-    void * dcsound = sega_get_dcsound_state(emu);
-    yam = dcsound_get_yam_state( dcsound );
-  }
-  else
-  {
-    void * satsound = sega_get_satsound_state(emu);
-    yam = satsound_get_yam_state( satsound );
-  }
-  if (yam)
-    yam_prepare_dynacode(yam);
-
-  uint32_t start = get_le32(&result->state.state[0]);
-  size_t length = result->state.state.size();
-  size_t max_length = ( result->version == 0x12 ) ? 0x800000 : 0x80000;
-  if ((start + (length-4)) > max_length)
-  {
-    length = max_length - start + 4;
-  }
-  sega_upload_program(emu, &result->state.state[0], length );
-  
-  *totaltime = result->len;
-  static enum AEChannel map[3] = {
-    AE_CH_FL, AE_CH_FR, AE_CH_NULL
-  };
-  *format = AE_FMT_S16NE;
-  *channelinfo = map;
-  *channels = 2;
-  *bitspersample = 16;
-  *bitrate = 0.0;
-  *samplerate = result->sample_rate = 44100;
-  result->len = result->sample_rate*4*(*totaltime)/1000;
-
-  return result;
 }
 
-int ReadPCM(void* context, uint8_t* pBuffer, int size, int *actualsize)
+class CSSFCodec : public kodi::addon::CInstanceAudioDecoder,
+                  public kodi::addon::CAddonBase
 {
-  SSFContext* ssf = (SSFContext*)context;
-  if (ssf->pos >= ssf->len)
-    return 1;
+public:
+  CSSFCodec(KODI_HANDLE instance) :
+    CInstanceAudioDecoder(instance) {}
 
-  *actualsize = size/4;
-  int err = sega_execute(&ssf->sega_state[0], 0x7FFFFFFF,
-                         (int16_t*)pBuffer, (unsigned int*)actualsize);
-  if (err < 0)
-    return 1;
-  *actualsize *= 4;
-  ssf->pos += *actualsize;
-  return 0;
-}
-
-int64_t Seek(void* context, int64_t time)
-{
-  SSFContext* ssf = (SSFContext*)context;
-  if (time*ssf->sample_rate*4/1000 < ssf->pos)
+  virtual ~CSSFCodec()
   {
-    void* emu = &ssf->sega_state[0];
-    uint32_t start = get_le32((uint32_t*)(&ssf->state.state[0]));
-    size_t length = ssf->state.state.size();
-    size_t max_length = ( ssf->version == 0x12 ) ? 0x800000 : 0x80000;
+    if (ctx.sega_state.empty())
+      return;
+
+    void * yam = 0;
+    if (ctx.version == 0x12)
+    {
+      void * dcsound = sega_get_dcsound_state(&ctx.sega_state[0]);
+      yam = dcsound_get_yam_state( dcsound );
+    }
+    else
+    {
+      void * satsound = sega_get_satsound_state(&ctx.sega_state[0]);
+      yam = satsound_get_yam_state( satsound );
+    }
+    if (yam)
+      yam_unprepare_dynacode(yam);
+  }
+
+  virtual bool Init(const std::string& filename, unsigned int filecache,
+                    int& channels, int& samplerate,
+                    int& bitspersample, int64_t& totaltime,
+                    int& bitrate, AEDataFormat& format,
+                    std::vector<AEChannel>& channellist) override
+  {
+    ctx.pos = 0;
+    if ((ctx.version=psf_load(filename.c_str(), &psf_file_system, 0, 0, 0, 0, 0, 0)) <= 0 ||
+        !(ctx.version == 0x11 || ctx.version == 0x12))
+      return false;
+
+    if (psf_load(filename.c_str(), &psf_file_system, ctx.version,
+          0, 0, psf_info_meta, &ctx, 0) <= 0)
+      return false;
+
+    if (psf_load(filename.c_str(), &psf_file_system, ctx.version,
+                 sdsf_load, &ctx.state, 0, 0, 0) < 0)
+      return false;
+
+    sega_init();
+    ctx.sega_state.resize(sega_get_state_size(ctx.version-0x10));
+    void* emu = &ctx.sega_state[0];
+    sega_clear_state(emu, ctx.version-0x10);
+    sega_enable_dry(emu, 0);
+    sega_enable_dsp(emu, 1);
+    sega_enable_dsp_dynarec(emu, 1);
+
+    void * yam = 0;
+    if (ctx.version == 0x12)
+    {
+      void * dcsound = sega_get_dcsound_state(emu);
+      yam = dcsound_get_yam_state( dcsound );
+    }
+    else
+    {
+      void * satsound = sega_get_satsound_state(emu);
+      yam = satsound_get_yam_state( satsound );
+    }
+    if (yam)
+      yam_prepare_dynacode(yam);
+
+    uint32_t start = get_le32(&ctx.state.state[0]);
+    size_t length = ctx.state.state.size();
+    size_t max_length = ( ctx.version == 0x12 ) ? 0x800000 : 0x80000;
     if ((start + (length-4)) > max_length)
     {
       length = max_length - start + 4;
     }
-    sega_upload_program(emu, &ssf->state.state[0], length );
-    ssf->pos = 0;
+    sega_upload_program(emu, &ctx.state.state[0], length );
+
+    totaltime = ctx.len;
+    format = AE_FMT_S16NE;
+    channellist = { AE_CH_FL, AE_CH_FR };
+    channels = 2;
+    bitspersample = 16;
+    bitrate = 0.0;
+    samplerate = ctx.sample_rate = 44100;
+    ctx.len = ctx.sample_rate*4*totaltime/1000;
+
+    return true;
   }
-  
-  int64_t left = time*ssf->sample_rate*4/1000-ssf->pos;
-  while (left > 1024)
+
+  virtual int ReadPCM(uint8_t* buffer, int size, int& actualsize) override
   {
-    unsigned int chunk=1024;
-    int rtn = sega_execute(&ssf->sega_state[0], 0x7FFFFFFF, 0, &chunk);
-    ssf->pos += chunk*2;
-    left -= chunk*2;
+    if (ctx.pos >= ctx.len)
+      return 1;
+
+    actualsize = size/4;
+    int err = sega_execute(&ctx.sega_state[0], 0x7FFFFFFF,
+                           (int16_t*)buffer, (unsigned int*)&actualsize);
+    if (err < 0)
+      return 1;
+    actualsize *= 4;
+    ctx.pos += actualsize;
+    return 0;
   }
 
-  return ssf->pos/(ssf->sample_rate*4)*1000;
-}
+  virtual int64_t Seek(int64_t time) override
+  {
+    if (time*ctx.sample_rate*4/1000 < ctx.pos)
+    {
+      void* emu = &ctx.sega_state[0];
+      uint32_t start = get_le32((uint32_t*)(&ctx.state.state[0]));
+      size_t length = ctx.state.state.size();
+      size_t max_length = ( ctx.version == 0x12 ) ? 0x800000 : 0x80000;
+      if ((start + (length-4)) > max_length)
+      {
+        length = max_length - start + 4;
+      }
+      sega_upload_program(emu, &ctx.state.state[0], length );
+      ctx.pos = 0;
+    }
 
-bool DeInit(void* context)
+    int64_t left = time*ctx.sample_rate*4/1000-ctx.pos;
+    while (left > 1024)
+    {
+      unsigned int chunk=1024;
+      int rtn = sega_execute(&ctx.sega_state[0], 0x7FFFFFFF, 0, &chunk);
+      ctx.pos += chunk*2;
+      left -= chunk*2;
+    }
+
+    return ctx.pos/(ctx.sample_rate*4)*1000;
+  }
+
+  virtual bool ReadTag(const std::string& file, std::string& title,
+                       std::string& artist, int& length) override
+  {
+    SSFContext ssf;
+
+    if (psf_load(file.c_str(), &psf_file_system, 0x11, 0, 0, psf_info_meta, &ssf, 0) <= 0 &&
+        psf_load(file.c_str(), &psf_file_system, 0x12, 0, 0, psf_info_meta, &ssf, 0) <= 0)
+      return false;
+
+    title = ssf.title;
+    artist = ssf.artist;
+    length = ssf.len/1000;
+
+    return true;
+  }
+
+private:
+  SSFContext ctx;
+};
+
+
+class ATTRIBUTE_HIDDEN CMyAddon : public kodi::addon::CAddonBase
 {
-  SSFContext* ssf = (SSFContext*)context;
-  void * yam = 0;
-  if (ssf->version == 0x12)
+public:
+  CMyAddon() { }
+  virtual ADDON_STATUS CreateInstance(int instanceType, std::string instanceID, KODI_HANDLE instance, KODI_HANDLE& addonInstance) override
   {
-    void * dcsound = sega_get_dcsound_state(&ssf->state.state[0]);
-    yam = dcsound_get_yam_state( dcsound );
+    addonInstance = new CSSFCodec(instance);
+    return ADDON_STATUS_OK;
   }
-  else
+  virtual ~CMyAddon()
   {
-    void * satsound = sega_get_satsound_state(&ssf->state.state[0]);
-    yam = satsound_get_yam_state( satsound );
   }
-  if (yam)
-    yam_unprepare_dynacode(yam);
-  delete ssf;
+};
 
-  return true;
-}
 
-bool ReadTag(const char* strFile, char* title, char* artist, int* length)
-{
-  SSFContext* ssf = new SSFContext;
-
-  if (psf_load(strFile, &psf_file_system, 0x11, 0, 0, psf_info_meta, ssf, 0) <= 0 &&
-      psf_load(strFile, &psf_file_system, 0x12, 0, 0, psf_info_meta, ssf, 0) <= 0)
-  {
-    delete ssf;
-    return false;
-  }
-
-  strcpy(title, ssf->title.c_str());
-  strcpy(artist, ssf->artist.c_str());
-  *length = ssf->len/1000;
-
-  delete ssf;
-  return true;
-}
-
-int TrackCount(const char* strFile)
-{
-  return 1;
-}
-}
+ADDONCREATOR(CMyAddon);
