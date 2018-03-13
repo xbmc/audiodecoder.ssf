@@ -21,4 +21,8 @@ set(DEPLIBS highly_theoretical psflib)
 
 build_addon(audiodecoder.ssf SSF DEPLIBS)
 
+if(CORE_SYSTEM_NAME MATCHES windows)
+  target_compile_definitions(audiodecoder.ssf PRIVATE -Dstrcasecmp=_stricmp)
+endif()
+
 include(CPack)

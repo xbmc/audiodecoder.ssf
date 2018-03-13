@@ -12,8 +12,7 @@ set(SOURCES Core/sega.c
             Core/yam.c
             Core/satsound.c)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-
 add_definitions(-DEMU_COMPILE -DEMU_LITTLE_ENDIAN -DUSE_M68K -DLSB_FIRST -DHAVE_MPROTECT)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE 1)
 add_library(highly_theoretical STATIC ${SOURCES})
