@@ -24,7 +24,11 @@
 
 #ifndef _WIN32
 #define __cdecl
-#define __fastcall __attribute__((regparm(3)))
+#if defined(__x86_64) || defined(__x86_64__) || defined(__i386) || defined(__i386__) || defined(i386) || defined(__i686) || defined(__i686__)
+ #define __fastcall __attribute__((regparm(3)))
+#else
+#define __fastcall
+#endif
 #endif
 
 /* No dynarec for x86_64 yet */
