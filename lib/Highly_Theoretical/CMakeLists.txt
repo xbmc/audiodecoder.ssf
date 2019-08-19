@@ -1,8 +1,5 @@
+cmake_minimum_required(VERSION 3.5)
 project(Highly_Theoretical)
-
-enable_language(C)
-
-cmake_minimum_required(VERSION 2.6)
 
 set(SOURCES Core/sega.c
             Core/m68k/m68kops.c
