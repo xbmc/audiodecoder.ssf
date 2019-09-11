@@ -1,0 +1,4 @@
+Highly_Theoretical source from https://github.com/kode54/Highly_Theoretical
+Sync to 2998a4b (24 Jul 2016)
+
+Include fix build for ios/osx/android, see https://github.com/xbmc/audiodecoder.ssf/commit/41ef56f7
