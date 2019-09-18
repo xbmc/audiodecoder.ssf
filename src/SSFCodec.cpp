@@ -274,16 +274,16 @@ public:
             std::vector<AEChannel>& channellist) override
   {
     ctx.pos = 0;
-    if ((ctx.version=psf_load(filename.c_str(), &psf_file_system, 0, 0, 0, 0, 0, 0)) <= 0 ||
+    if ((ctx.version = psf_load(filename.c_str(), &psf_file_system, 0, nullptr, nullptr, nullptr, nullptr, 0, nullptr, nullptr)) <= 0 ||
         !(ctx.version == 0x11 || ctx.version == 0x12))
       return false;
 
     if (psf_load(filename.c_str(), &psf_file_system, ctx.version,
-          0, 0, psf_info_meta, &ctx, 0) <= 0)
+          nullptr, nullptr, psf_info_meta, &ctx, 0, nullptr, nullptr) <= 0)
       return false;
 
     if (psf_load(filename.c_str(), &psf_file_system, ctx.version,
-                 sdsf_load, &ctx.state, 0, 0, 0) < 0)
+                 sdsf_load, &ctx.state, nullptr, nullptr, 0, nullptr, nullptr) < 0)
       return false;
 
     sega_init();
@@ -377,8 +377,8 @@ public:
   {
     SSFContext ssf;
 
-    if (psf_load(file.c_str(), &psf_file_system, 0x11, 0, 0, psf_info_meta, &ssf, 0) <= 0 &&
-        psf_load(file.c_str(), &psf_file_system, 0x12, 0, 0, psf_info_meta, &ssf, 0) <= 0)
+    if (psf_load(file.c_str(), &psf_file_system, 0x11, nullptr, nullptr, psf_info_meta, &ssf, 0, nullptr, nullptr) <= 0 &&
+        psf_load(file.c_str(), &psf_file_system, 0x12, nullptr, nullptr, psf_info_meta, &ssf, 0, nullptr, nullptr) <= 0)
       return false;
 
     title = ssf.title;
