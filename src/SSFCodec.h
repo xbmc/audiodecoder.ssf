@@ -98,8 +98,6 @@ private:
   }
 
   int m_cfgDefaultSampleRate = 44100;
-  int m_cfgDefaultLength = 170000;
-  int m_cfgDefaultFade = 10000;
   bool m_cfgSuppressOpeningSilence = true;
   bool m_cfgSuppressEndSilence = true;
   int m_cfgEndSilenceSeconds = 5;

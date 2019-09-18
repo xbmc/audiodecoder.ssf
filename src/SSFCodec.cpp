@@ -305,13 +305,20 @@ bool CSSFCodec::Init(const std::string& filename, unsigned int filecache,
     return false;
   }
 
+  kodi::CheckSettingBoolean("suppressopeningsilence", m_cfgSuppressOpeningSilence);
+  kodi::CheckSettingBoolean("suppressendsilence", m_cfgSuppressEndSilence);
+  kodi::CheckSettingInt("endsilenceseconds", m_cfgEndSilenceSeconds);
+  kodi::CheckSettingBoolean("dry", m_cfgDry);
+  kodi::CheckSettingBoolean("dsp", m_cfgDSP);
+  kodi::CheckSettingBoolean("dspdynamicrec", m_cfgDSPDynamicRec);
+
   m_tagSongMs = info_state.tagSongMs;
   m_tagFadeMs = info_state.tagFadeMs;
 
   if (!m_tagSongMs)
   {
-    m_tagSongMs = m_cfgDefaultLength;
-    m_tagFadeMs = m_cfgDefaultFade;
+    m_tagSongMs = kodi::GetSettingInt("defaultlength") * 1000;
+    m_tagFadeMs = kodi::GetSettingInt("defaultfade");
   }
 
   if (!Load())
