@@ -14,6 +14,8 @@ add_subdirectory(lib/psflib)
 add_subdirectory(lib/Highly_Theoretical)
 
 set(SSF_SOURCES src/SSFCodec.cpp)
+set(SSF_HEADERS src/CircularBuffer.h
+                src/SSFCodec.h)
 
 set(DEPLIBS highly_theoretical psflib ${ZLIB_LIBRARIES})
 
