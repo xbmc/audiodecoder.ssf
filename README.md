@@ -3,7 +3,8 @@
 This is a [Kodi](https://kodi.tv) audio decoder addon for SSF and (mini-)DSF files.
 
 [![Build Status](https://travis-ci.org/xbmc/audiodecoder.ssf.svg?branch=Matrix)](https://travis-ci.org/xbmc/audiodecoder.ssf/branches)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/xbmc/audiodecoder.ssf?branch=Matrix&svg=true)](https://ci.appveyor.com/project/xbmc/audiodecoder-ssf?branch=Matrix)
+[![Build Status](https://dev.azure.com/teamkodi/binary-addons/_apis/build/status/xbmc.audiodecoder.ssf?branchName=Matrix)](https://dev.azure.com/teamkodi/binary-addons/_build/latest?definitionId=15&branchName=Matrix)
+<!--- [![Build Status](https://ci.appveyor.com/api/projects/status/github/xbmc/audiodecoder.ssf?branch=Matrix&svg=true)](https://ci.appveyor.com/project/xbmc/audiodecoder-ssf?branch=Matrix) -->
 
 ## Build instructions
 
