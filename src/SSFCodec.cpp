@@ -241,7 +241,8 @@ static int psf_info_meta(void* context, const char* name, const char* value)
 
 //------------------------------------------------------------------------------
 
-CSSFCodec::CSSFCodec(KODI_HANDLE instance) : CInstanceAudioDecoder(instance)
+CSSFCodec::CSSFCodec(KODI_HANDLE instance, const std::string& version)
+  : CInstanceAudioDecoder(instance, version)
 {
 
 }
@@ -675,9 +676,9 @@ class ATTRIBUTE_HIDDEN CMyAddon : public kodi::addon::CAddonBase
 {
 public:
   CMyAddon() = default;
-  ADDON_STATUS CreateInstance(int instanceType, std::string instanceID, KODI_HANDLE instance, KODI_HANDLE& addonInstance) override
+  ADDON_STATUS CreateInstance(int instanceType, const std::string& instanceID, KODI_HANDLE instance, const std::string& version, KODI_HANDLE& addonInstance) override
   {
-    addonInstance = new CSSFCodec(instance);
+    addonInstance = new CSSFCodec(instance, version);
     return ADDON_STATUS_OK;
   }
   virtual ~CMyAddon() = default;

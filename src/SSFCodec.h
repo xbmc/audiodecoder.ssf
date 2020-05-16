@@ -45,7 +45,7 @@ struct psf_info_meta_state
 class ATTRIBUTE_HIDDEN CSSFCodec : public kodi::addon::CInstanceAudioDecoder
 {
 public:
-  CSSFCodec(KODI_HANDLE instance);
+  CSSFCodec(KODI_HANDLE instance, const std::string& version);
   ~CSSFCodec() override;
 
   bool Init(const std::string& filename, unsigned int filecache,
