@@ -270,8 +270,8 @@ CSSFCodec::~CSSFCodec()
 bool CSSFCodec::Init(const std::string& filename, unsigned int filecache,
                      int& channels, int& samplerate,
                      int& bitspersample, int64_t& totaltime,
-                     int& bitrate, AEDataFormat& format,
-                     std::vector<AEChannel>& channellist)
+                     int& bitrate, AudioEngineDataFormat& format,
+                     std::vector<AudioEngineChannel>& channellist)
 {
   m_path = filename;
   m_xsfVersion = psf_load(m_path.c_str(), &psf_file_system, 0,
@@ -315,8 +315,8 @@ bool CSSFCodec::Init(const std::string& filename, unsigned int filecache,
     return false;
 
   totaltime = m_songLength / m_cfgDefaultSampleRate * 1000 + m_tagFadeMs;
-  format = AE_FMT_S16NE;
-  channellist = { AE_CH_FL, AE_CH_FR };
+  format = AUDIOENGINE_FMT_S16NE;
+  channellist = { AUDIOENGINE_CH_FL, AUDIOENGINE_CH_FR };
   channels = 2;
   bitspersample = 16;
   bitrate = 0.0;
@@ -638,10 +638,9 @@ int64_t CSSFCodec::Seek(int64_t time)
   return time;
 }
 
-bool CSSFCodec::ReadTag(const std::string& file, std::string& title,
-                        std::string& artist, int& length)
+bool CSSFCodec::ReadTag(const std::string& filename, kodi::addon::AudioDecoderInfoTag& tag)
 {
-  int xsfVersion = psf_load(file.c_str(), &psf_file_system, 0,
+  int xsfVersion = psf_load(filename.c_str(), &psf_file_system, 0,
                           nullptr, nullptr,
                           nullptr, nullptr, 0,
                           SSFPrintMessage, this);
@@ -652,15 +651,15 @@ bool CSSFCodec::ReadTag(const std::string& file, std::string& title,
   }
 
   psf_info_meta_state info_state;
-  if (psf_load(file.c_str(), &psf_file_system, xsfVersion, nullptr, nullptr, psf_info_meta, &info_state, 0, SSFPrintMessage, this) <= 0)
+  if (psf_load(filename.c_str(), &psf_file_system, xsfVersion, nullptr, nullptr, psf_info_meta, &info_state, 0, SSFPrintMessage, this) <= 0)
   {
-    kodi::Log(ADDON_LOG_ERROR, "%s: Failed to load %s information from '%s'", __func__, xsfVersion == 0x11 ? "SSF" : "DSF", file.c_str());
+    kodi::Log(ADDON_LOG_ERROR, "%s: Failed to load %s information from '%s'", __func__, xsfVersion == 0x11 ? "SSF" : "DSF", filename.c_str());
     return false;
   }
 
-  title = info_state.title;
-  artist = info_state.artist;
-  length = (info_state.tagSongMs+info_state.tagFadeMs)/1000;
+  tag.SetTitle(info_state.title);
+  tag.SetArtist(info_state.artist);
+  tag.SetDuration((info_state.tagSongMs+info_state.tagFadeMs)/1000);
 
   return true;
 }
