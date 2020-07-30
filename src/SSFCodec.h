@@ -31,8 +31,11 @@ struct psf_info_meta_state
 {
   std::string title;
   std::string artist;
+  std::string game;
+  std::string genre;
   std::string year;
   std::string replaygain;
+  std::string comment;
 
   bool utf8 = false;
 

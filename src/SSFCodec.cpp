@@ -186,7 +186,7 @@ extern "C"
     }
     else if (!strcasecmp(name, "game"))
     {
-      state->artist = value;
+      state->game = value;
     }
     else if (!strcasecmp(name, "title"))
     {
@@ -195,6 +195,14 @@ extern "C"
     else if (!strcasecmp(name, "year"))
     {
       state->year = value;
+    }
+    else if (!strcasecmp(name, "genre"))
+    {
+      state->genre = value;
+    }
+    else if (!strcasecmp(name, "comment"))
+    {
+      state->comment = value;
     }
     else if (!strcasecmp(name, "replaygain_"))
     {
@@ -656,7 +664,14 @@ bool CSSFCodec::ReadTag(const std::string& filename, kodi::addon::AudioDecoderIn
   }
 
   tag.SetTitle(info_state.title);
-  tag.SetArtist(info_state.artist);
+  if (!info_state.artist.empty())
+    tag.SetArtist(info_state.artist);
+  else
+    tag.SetArtist(info_state.game);
+  tag.SetAlbum(info_state.game);
+  tag.SetGenre(info_state.genre);
+  tag.SetReleaseDate(info_state.year);
+  tag.SetComment(info_state.comment);
   tag.SetDuration((info_state.tagSongMs + info_state.tagFadeMs) / 1000);
 
   return true;
