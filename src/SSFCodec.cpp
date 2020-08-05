@@ -77,7 +77,7 @@ extern "C"
     return 0;
   }
 
-  static void* psf_file_fopen(const char* uri)
+  static void* psf_file_fopen(void* context, const char* uri)
   {
     kodi::vfs::CFile* file = new kodi::vfs::CFile;
     if (!file->OpenFile(uri, 0))
@@ -114,8 +114,9 @@ extern "C"
     return file->GetPosition();
   }
 
-  const psf_file_callbacks psf_file_system = {"\\/",          psf_file_fopen,  psf_file_fread,
-                                              psf_file_fseek, psf_file_fclose, psf_file_ftell};
+  const psf_file_callbacks psf_file_system = {"\\/",          nullptr,        psf_file_fopen,
+                                              psf_file_fread, psf_file_fseek, psf_file_fclose,
+                                              psf_file_ftell};
 
 #define BORK_TIME 0xC0CAC01A
 
