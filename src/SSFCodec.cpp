@@ -16,226 +16,230 @@ std::mutex CSSFCodec::m_gSyncMutex;
 extern "C"
 {
 
-inline unsigned get_le32(void const* p)
-{
-  return (unsigned) ((unsigned char const*) p) [3] << 24 |
-         (unsigned) ((unsigned char const*) p) [2] << 16 |
-         (unsigned) ((unsigned char const*) p) [1] << 8 |
-         (unsigned) ((unsigned char const*) p) [0];
-}
-
-static int sdsf_load(void* context, const uint8_t* exe, size_t exe_size,
-                     const uint8_t* reserved, size_t reserved_size)
-{
-  if (exe_size < 4)
-    return -1;
-
-  sdsf_load_state* state = static_cast<sdsf_load_state*>(context);
-
-  std::vector<uint8_t>& dst = state->state;
-
-  if (dst.size() < 4)
+  inline unsigned get_le32(void const* p)
   {
-    dst.resize(exe_size);
-    memcpy(&dst[0], exe, exe_size);
+    return (unsigned)((unsigned char const*)p)[3] << 24 |
+           (unsigned)((unsigned char const*)p)[2] << 16 |
+           (unsigned)((unsigned char const*)p)[1] << 8 | (unsigned)((unsigned char const*)p)[0];
+  }
+
+  static int sdsf_load(void* context,
+                       const uint8_t* exe,
+                       size_t exe_size,
+                       const uint8_t* reserved,
+                       size_t reserved_size)
+  {
+    if (exe_size < 4)
+      return -1;
+
+    sdsf_load_state* state = static_cast<sdsf_load_state*>(context);
+
+    std::vector<uint8_t>& dst = state->state;
+
+    if (dst.size() < 4)
+    {
+      dst.resize(exe_size);
+      memcpy(&dst[0], exe, exe_size);
+      return 0;
+    }
+
+    uint32_t dst_start = get_le32(&dst[0]);
+    uint32_t src_start = get_le32(exe);
+    dst_start &= 0x7FFFFF;
+    src_start &= 0x7FFFFF;
+    size_t dst_len = dst.size() - 4;
+    size_t src_len = exe_size - 4;
+    if (dst_len > 0x800000)
+      dst_len = 0x800000;
+    if (src_len > 0x800000)
+      src_len = 0x800000;
+
+    if (src_start < dst_start)
+    {
+      size_t diff = dst_start - src_start;
+      dst.resize(dst_len + 4 + diff);
+      memmove(&dst[0] + 4 + diff, &dst[0] + 4, dst_len);
+      memset(&dst[0] + 4, 0, diff);
+      dst_len += diff;
+      dst_start = src_start;
+      *(uint32_t*)(&dst[0]) = get_le32(&dst_start);
+    }
+    if ((src_start + src_len) > (dst_start + dst_len))
+    {
+      size_t diff = (src_start + src_len) - (dst_start + dst_len);
+      dst.resize(dst_len + 4 + diff);
+      memset(&dst[0] + 4 + dst_len, 0, diff);
+      dst_len += diff;
+    }
+
+    memcpy(&dst[0] + 4 + (src_start - dst_start), exe + 4, src_len);
+
     return 0;
   }
 
-  uint32_t dst_start = get_le32(&dst[0]);
-  uint32_t src_start = get_le32(exe);
-  dst_start &= 0x7FFFFF;
-  src_start &= 0x7FFFFF;
-  size_t dst_len = dst.size() - 4;
-  size_t src_len = exe_size - 4;
-  if (dst_len > 0x800000)
-    dst_len = 0x800000;
-  if (src_len > 0x800000)
-    src_len = 0x800000;
+  static void* psf_file_fopen(void* context, const char* uri)
+  {
+    kodi::vfs::CFile* file = new kodi::vfs::CFile;
+    if (!file->OpenFile(uri, 0))
+    {
+      delete file;
+      return nullptr;
+    }
 
-  if (src_start < dst_start)
-  {
-    size_t diff = dst_start - src_start;
-    dst.resize(dst_len + 4 + diff);
-    memmove(&dst[0] + 4 + diff, &dst[0] + 4, dst_len);
-    memset(&dst[0] + 4, 0, diff );
-    dst_len += diff;
-    dst_start = src_start;
-    *(uint32_t*)(&dst[0]) = get_le32(&dst_start);
-  }
-  if ((src_start + src_len) > (dst_start + dst_len))
-  {
-    size_t diff = (src_start + src_len) - (dst_start + dst_len);
-    dst.resize(dst_len + 4 + diff);
-    memset(&dst[0] + 4 + dst_len, 0, diff);
-    dst_len += diff;
+    return file;
   }
 
-  memcpy(&dst[0] + 4 + (src_start - dst_start), exe + 4, src_len);
-
-  return 0;
-}
-
-static void* psf_file_fopen(const char* uri)
-{
-  kodi::vfs::CFile* file = new kodi::vfs::CFile;
-  if (!file->OpenFile(uri, 0))
+  static size_t psf_file_fread(void* buffer, size_t size, size_t count, void* handle)
   {
-    delete file;
-    return nullptr;
+    kodi::vfs::CFile* file = static_cast<kodi::vfs::CFile*>(handle);
+    return file->Read(buffer, size * count);
   }
 
-  return file;
-}
+  static int psf_file_fseek(void* handle, int64_t offset, int whence)
+  {
+    kodi::vfs::CFile* file = static_cast<kodi::vfs::CFile*>(handle);
+    return file->Seek(offset, whence) > -1 ? 0 : -1;
+  }
 
-static size_t psf_file_fread(void* buffer, size_t size, size_t count, void* handle)
-{
-  kodi::vfs::CFile* file = static_cast<kodi::vfs::CFile*>(handle);
-  return file->Read(buffer, size*count);
-}
+  static int psf_file_fclose(void* handle)
+  {
+    delete static_cast<kodi::vfs::CFile*>(handle);
 
-static int psf_file_fseek(void* handle, int64_t offset, int whence)
-{
-  kodi::vfs::CFile* file = static_cast<kodi::vfs::CFile*>(handle);
-  return file->Seek(offset, whence) > -1 ? 0 : -1;
-}
+    return 0;
+  }
 
-static int psf_file_fclose(void* handle )
-{
-  delete static_cast<kodi::vfs::CFile*>(handle);
+  static long psf_file_ftell(void* handle)
+  {
+    kodi::vfs::CFile* file = static_cast<kodi::vfs::CFile*>(handle);
+    return file->GetPosition();
+  }
 
-  return 0;
-}
-
-static long psf_file_ftell(void* handle)
-{
-  kodi::vfs::CFile* file = static_cast<kodi::vfs::CFile*>(handle);
-  return file->GetPosition();
-}
-
-const psf_file_callbacks psf_file_system =
-{
-  "\\/",
-  psf_file_fopen,
-  psf_file_fread,
-  psf_file_fseek,
-  psf_file_fclose,
-  psf_file_ftell
-};
+  const psf_file_callbacks psf_file_system = {"\\/",          nullptr,        psf_file_fopen,
+                                              psf_file_fread, psf_file_fseek, psf_file_fclose,
+                                              psf_file_ftell};
 
 #define BORK_TIME 0xC0CAC01A
 
-static unsigned long parse_time_crap(const char* input)
-{
-  unsigned long value = 0;
-  unsigned long multiplier = 1000;
-  const char* ptr = input;
-  unsigned long colon_count = 0;
-
-  while (*ptr && ((*ptr >= '0' && *ptr <= '9') || *ptr == ':'))
+  static unsigned long parse_time_crap(const char* input)
   {
-    colon_count += *ptr == ':';
-    ++ptr;
-  }
-  if (colon_count > 2)
-    return BORK_TIME;
-  if (*ptr && *ptr != '.' && *ptr != ',')
-    return BORK_TIME;
-  if (*ptr)
-    ++ptr;
-  while (*ptr && *ptr >= '0' && *ptr <= '9')
-    ++ptr;
-  if (*ptr)
-    return BORK_TIME;
+    unsigned long value = 0;
+    unsigned long multiplier = 1000;
+    const char* ptr = input;
+    unsigned long colon_count = 0;
 
-  ptr = strrchr(input, ':');
-  if (!ptr)
-    ptr = input;
-  for (;;)
-  {
-    char* end;
-    if (ptr != input)
+    while (*ptr && ((*ptr >= '0' && *ptr <= '9') || *ptr == ':'))
+    {
+      colon_count += *ptr == ':';
       ++ptr;
-    if (multiplier == 1000)
-    {
-      double temp = std::stod(ptr);
-      if (temp >= 60.0)
-        return BORK_TIME;
-      value = (long)(temp * 1000.0f);
     }
-    else
+    if (colon_count > 2)
+      return BORK_TIME;
+    if (*ptr && *ptr != '.' && *ptr != ',')
+      return BORK_TIME;
+    if (*ptr)
+      ++ptr;
+    while (*ptr && *ptr >= '0' && *ptr <= '9')
+      ++ptr;
+    if (*ptr)
+      return BORK_TIME;
+
+    ptr = strrchr(input, ':');
+    if (!ptr)
+      ptr = input;
+    for (;;)
     {
-      unsigned long temp = strtoul(ptr, &end, 10);
-      if (temp >= 60 && multiplier < 3600000)
-        return BORK_TIME;
-      value += temp * multiplier;
+      char* end;
+      if (ptr != input)
+        ++ptr;
+      if (multiplier == 1000)
+      {
+        double temp = std::stod(ptr);
+        if (temp >= 60.0)
+          return BORK_TIME;
+        value = (long)(temp * 1000.0f);
+      }
+      else
+      {
+        unsigned long temp = strtoul(ptr, &end, 10);
+        if (temp >= 60 && multiplier < 3600000)
+          return BORK_TIME;
+        value += temp * multiplier;
+      }
+      if (ptr == input)
+        break;
+      ptr -= 2;
+      while (ptr > input && *ptr != ':')
+        --ptr;
+      multiplier *= 60;
     }
-    if (ptr == input)
-      break;
-    ptr -= 2;
-    while (ptr > input && *ptr != ':')
-      --ptr;
-    multiplier *= 60;
+
+    return value;
   }
 
-  return value;
-}
+  static int psf_info_meta(void* context, const char* name, const char* value)
+  {
+    psf_info_meta_state* state = static_cast<psf_info_meta_state*>(context);
 
-static int psf_info_meta(void* context, const char* name, const char* value)
-{
-  psf_info_meta_state* state = static_cast<psf_info_meta_state*>(context);
-
-  if (!strcasecmp(name, "artist") && state->artist.empty())
-  {
-    state->artist = value;
-  }
-  else if (!strcasecmp(name, "game"))
-  {
-    state->artist = value;
-  }
-  else if (!strcasecmp(name, "title"))
-  {
-    state->title = value;
-  }
-  else if (!strcasecmp(name, "year"))
-  {
-    state->year = value;
-  }
-  else if (!strcasecmp(name, "replaygain_"))
-  {
-    state->replaygain = value;
-  }
-  else if (!strcasecmp(name, "length"))
-  {
-    int temp = parse_time_crap(value);
-    if (temp != BORK_TIME)
+    if (!strcasecmp(name, "artist") && state->artist.empty())
     {
-      state->tagSongMs = temp;
+      state->artist = value;
     }
-  }
-  else if (!strcasecmp(name, "fade"))
-  {
-    int temp = parse_time_crap(value);
-    if (temp != BORK_TIME)
+    else if (!strcasecmp(name, "game"))
     {
-      state->tagFadeMs = temp;
+      state->game = value;
     }
-  }
-  else if (!strcasecmp(name, "utf8"))
-  {
-    state->utf8 = true;
-  }
-  else if (!strcasecmp(name, "_lib"))
-  {
-    // Unused, checked to prevent on next error
-  }
-  else if (name[0] == '_')
-  {
-    kodi::Log(ADDON_LOG_WARNING, "Unsupported tag found: '%s', required to play file", name);
-    return -1;
-  }
+    else if (!strcasecmp(name, "title"))
+    {
+      state->title = value;
+    }
+    else if (!strcasecmp(name, "year"))
+    {
+      state->year = value;
+    }
+    else if (!strcasecmp(name, "genre"))
+    {
+      state->genre = value;
+    }
+    else if (!strcasecmp(name, "comment"))
+    {
+      state->comment = value;
+    }
+    else if (!strcasecmp(name, "replaygain_"))
+    {
+      state->replaygain = value;
+    }
+    else if (!strcasecmp(name, "length"))
+    {
+      int temp = parse_time_crap(value);
+      if (temp != BORK_TIME)
+      {
+        state->tagSongMs = temp;
+      }
+    }
+    else if (!strcasecmp(name, "fade"))
+    {
+      int temp = parse_time_crap(value);
+      if (temp != BORK_TIME)
+      {
+        state->tagFadeMs = temp;
+      }
+    }
+    else if (!strcasecmp(name, "utf8"))
+    {
+      state->utf8 = true;
+    }
+    else if (!strcasecmp(name, "_lib"))
+    {
+      // Unused, checked to prevent on next error
+    }
+    else if (name[0] == '_')
+    {
+      kodi::Log(ADDON_LOG_WARNING, "Unsupported tag found: '%s', required to play file", name);
+      return -1;
+    }
 
-  return 0;
-}
+    return 0;
+  }
 
 } // extern "C"
 
@@ -244,7 +248,6 @@ static int psf_info_meta(void* context, const char* name, const char* value)
 CSSFCodec::CSSFCodec(KODI_HANDLE instance, const std::string& version)
   : CInstanceAudioDecoder(instance, version)
 {
-
 }
 
 CSSFCodec::~CSSFCodec()
@@ -267,17 +270,19 @@ CSSFCodec::~CSSFCodec()
     yam_unprepare_dynacode(yam);
 }
 
-bool CSSFCodec::Init(const std::string& filename, unsigned int filecache,
-                     int& channels, int& samplerate,
-                     int& bitspersample, int64_t& totaltime,
-                     int& bitrate, AEDataFormat& format,
-                     std::vector<AEChannel>& channellist)
+bool CSSFCodec::Init(const std::string& filename,
+                     unsigned int filecache,
+                     int& channels,
+                     int& samplerate,
+                     int& bitspersample,
+                     int64_t& totaltime,
+                     int& bitrate,
+                     AudioEngineDataFormat& format,
+                     std::vector<AudioEngineChannel>& channellist)
 {
   m_path = filename;
-  m_xsfVersion = psf_load(m_path.c_str(), &psf_file_system, 0,
-                          nullptr, nullptr,
-                          nullptr, nullptr, 0,
-                          SSFPrintMessage, this);
+  m_xsfVersion = psf_load(m_path.c_str(), &psf_file_system, 0, nullptr, nullptr, nullptr, nullptr,
+                          0, SSFPrintMessage, this);
   if (m_xsfVersion <= 0 || (m_xsfVersion != 0x11 && m_xsfVersion != 0x12))
   {
     kodi::Log(ADDON_LOG_ERROR, "%s: Not a SSF or PSF file '%s'", __func__, m_path.c_str());
@@ -285,10 +290,8 @@ bool CSSFCodec::Init(const std::string& filename, unsigned int filecache,
   }
 
   psf_info_meta_state info_state;
-  int ret = psf_load(m_path.c_str(), &psf_file_system, m_xsfVersion,
-                     nullptr, nullptr,
-                     psf_info_meta, &info_state, 0,
-                     SSFPrintMessage, this);
+  int ret = psf_load(m_path.c_str(), &psf_file_system, m_xsfVersion, nullptr, nullptr,
+                     psf_info_meta, &info_state, 0, SSFPrintMessage, this);
   if (ret <= 0)
   {
     kodi::Log(ADDON_LOG_ERROR, "%s: Failed to load tags from '%s'", __func__, m_path.c_str());
@@ -315,8 +318,8 @@ bool CSSFCodec::Init(const std::string& filename, unsigned int filecache,
     return false;
 
   totaltime = m_songLength / m_cfgDefaultSampleRate * 1000 + m_tagFadeMs;
-  format = AE_FMT_S16NE;
-  channellist = { AE_CH_FL, AE_CH_FR };
+  format = AUDIOENGINE_FMT_S16NE;
+  channellist = {AUDIOENGINE_CH_FL, AUDIOENGINE_CH_FR};
   channels = 2;
   bitspersample = 16;
   bitrate = 0.0;
@@ -377,7 +380,7 @@ bool CSSFCodec::Load()
     }
     else
     {
-      void * satsound = sega_get_satsound_state(pEmu);
+      void* satsound = sega_get_satsound_state(pEmu);
       yam = satsound_get_yam_state(satsound);
     }
     if (yam)
@@ -385,10 +388,8 @@ bool CSSFCodec::Load()
   }
 
   sdsf_load_state state;
-  int ret = psf_load(m_path.c_str(), &psf_file_system, m_xsfVersion,
-                     sdsf_load, &state,
-                     nullptr, nullptr, 0,
-                     SSFPrintMessage, this);
+  int ret = psf_load(m_path.c_str(), &psf_file_system, m_xsfVersion, sdsf_load, &state, nullptr,
+                     nullptr, 0, SSFPrintMessage, this);
   if (ret < 0)
   {
     kodi::Log(ADDON_LOG_ERROR, "%s: Invalid SSF/DSF from '%s'", __func__, m_path.c_str());
@@ -398,7 +399,7 @@ bool CSSFCodec::Load()
   uint32_t start = get_le32(state.state.data());
   size_t length = state.state.size();
   size_t max_length = (m_xsfVersion == 0x12) ? 0x800000 : 0x80000;
-  if ((start + (length-4)) > max_length)
+  if ((start + (length - 4)) > max_length)
   {
     length = max_length - start + 4;
   }
@@ -428,7 +429,7 @@ bool CSSFCodec::Load()
       if (skip_howmany > 8192)
         skip_howmany = 8192;
       m_sampleBuffer.resize(skip_howmany * 2);
-      int rtn = sega_execute(pEmu, 0x7FFFFFFF, m_sampleBuffer.data(), & skip_howmany);
+      int rtn = sega_execute(pEmu, 0x7FFFFFFF, m_sampleBuffer.data(), &skip_howmany);
       if (rtn < 0)
       {
         kodi::Log(ADDON_LOG_ERROR, "%s: Failed to call 'sega_execute'", __func__);
@@ -471,7 +472,9 @@ int CSSFCodec::ReadPCM(uint8_t* buffer, int size, int& actualsize)
   if (m_eof && !m_silenceTestBuffer.data_available())
     return 1;
 
-  if (m_noLoop && m_tagSongMs && (m_posDelta + mul_div(m_dataWritten, 1000, m_cfgDefaultSampleRate)) >= m_tagSongMs + m_tagFadeMs )
+  if (m_noLoop && m_tagSongMs &&
+      (m_posDelta + mul_div(m_dataWritten, 1000, m_cfgDefaultSampleRate)) >=
+          m_tagSongMs + m_tagFadeMs)
     return -1;
 
   unsigned int written = 0;
@@ -511,7 +514,8 @@ int CSSFCodec::ReadPCM(uint8_t* buffer, int size, int& actualsize)
           samples_to_render = free_space;
           if (samples_to_render > usedSize)
             samples_to_render = usedSize;
-          int err = sega_execute(m_segaState.data(), 0x7FFFFFFF, m_sampleBuffer.data(), &samples_to_render);
+          int err = sega_execute(m_segaState.data(), 0x7FFFFFFF, m_sampleBuffer.data(),
+                                 &samples_to_render);
           if (err < 0 || !samples_to_render)
           {
             kodi::Log(ADDON_LOG_ERROR, "%s: Execution halted with an error", __func__);
@@ -546,7 +550,7 @@ int CSSFCodec::ReadPCM(uint8_t* buffer, int size, int& actualsize)
     else
     {
       written = samples;
-      int err = sega_execute(m_segaState.data(), 0x7FFFFFFF, m_sampleBuffer.data(), & written );
+      int err = sega_execute(m_segaState.data(), 0x7FFFFFFF, m_sampleBuffer.data(), &written);
       if (err < 0 || !written)
       {
         kodi::Log(ADDON_LOG_ERROR, "%s: Execution halted with an error", __func__);
@@ -601,7 +605,8 @@ int64_t CSSFCodec::Seek(int64_t time)
   double p_seconds = double(time) / 1000.0;
   m_eof = false;
 
-  double buffered_time = (double)(m_silenceTestBuffer.data_available() / 2) / double(m_cfgDefaultSampleRate);
+  double buffered_time =
+      (double)(m_silenceTestBuffer.data_available() / 2) / double(m_cfgDefaultSampleRate);
 
   m_xsfEmuPosition += buffered_time;
 
@@ -611,7 +616,8 @@ int64_t CSSFCodec::Seek(int64_t time)
   {
     Load();
   }
-  unsigned int howmany = (int)(time_to_samples(p_seconds - m_xsfEmuPosition, m_cfgDefaultSampleRate));
+  unsigned int howmany =
+      (int)(time_to_samples(p_seconds - m_xsfEmuPosition, m_cfgDefaultSampleRate));
 
   // more abortable, and emu doesn't like doing huge numbers of samples per call anyway
   void* pEmu = m_segaState.data();
@@ -621,7 +627,7 @@ int64_t CSSFCodec::Seek(int64_t time)
     if (todo > 2048)
       todo = 2048;
     int rtn = sega_execute(pEmu, 0x7FFFFFFF, 0, &todo);
-    if (rtn < 0 || ! todo)
+    if (rtn < 0 || !todo)
     {
       m_eof = true;
       return -1;
@@ -638,13 +644,10 @@ int64_t CSSFCodec::Seek(int64_t time)
   return time;
 }
 
-bool CSSFCodec::ReadTag(const std::string& file, std::string& title,
-                        std::string& artist, int& length)
+bool CSSFCodec::ReadTag(const std::string& filename, kodi::addon::AudioDecoderInfoTag& tag)
 {
-  int xsfVersion = psf_load(file.c_str(), &psf_file_system, 0,
-                          nullptr, nullptr,
-                          nullptr, nullptr, 0,
-                          SSFPrintMessage, this);
+  int xsfVersion = psf_load(filename.c_str(), &psf_file_system, 0, nullptr, nullptr, nullptr,
+                            nullptr, 0, SSFPrintMessage, this);
   if (xsfVersion <= 0 || (xsfVersion != 0x11 && xsfVersion != 0x12))
   {
     kodi::Log(ADDON_LOG_ERROR, "%s: Not a SSF or PSF file '%s'", __func__, m_path.c_str());
@@ -652,15 +655,24 @@ bool CSSFCodec::ReadTag(const std::string& file, std::string& title,
   }
 
   psf_info_meta_state info_state;
-  if (psf_load(file.c_str(), &psf_file_system, xsfVersion, nullptr, nullptr, psf_info_meta, &info_state, 0, SSFPrintMessage, this) <= 0)
+  if (psf_load(filename.c_str(), &psf_file_system, xsfVersion, nullptr, nullptr, psf_info_meta,
+               &info_state, 0, SSFPrintMessage, this) <= 0)
   {
-    kodi::Log(ADDON_LOG_ERROR, "%s: Failed to load %s information from '%s'", __func__, xsfVersion == 0x11 ? "SSF" : "DSF", file.c_str());
+    kodi::Log(ADDON_LOG_ERROR, "%s: Failed to load %s information from '%s'", __func__,
+              xsfVersion == 0x11 ? "SSF" : "DSF", filename.c_str());
     return false;
   }
 
-  title = info_state.title;
-  artist = info_state.artist;
-  length = (info_state.tagSongMs+info_state.tagFadeMs)/1000;
+  tag.SetTitle(info_state.title);
+  if (!info_state.artist.empty())
+    tag.SetArtist(info_state.artist);
+  else
+    tag.SetArtist(info_state.game);
+  tag.SetAlbum(info_state.game);
+  tag.SetGenre(info_state.genre);
+  tag.SetReleaseDate(info_state.year);
+  tag.SetComment(info_state.comment);
+  tag.SetDuration((info_state.tagSongMs + info_state.tagFadeMs) / 1000);
 
   return true;
 }
@@ -676,7 +688,11 @@ class ATTRIBUTE_HIDDEN CMyAddon : public kodi::addon::CAddonBase
 {
 public:
   CMyAddon() = default;
-  ADDON_STATUS CreateInstance(int instanceType, const std::string& instanceID, KODI_HANDLE instance, const std::string& version, KODI_HANDLE& addonInstance) override
+  ADDON_STATUS CreateInstance(int instanceType,
+                              const std::string& instanceID,
+                              KODI_HANDLE instance,
+                              const std::string& version,
+                              KODI_HANDLE& addonInstance) override
   {
     addonInstance = new CSSFCodec(instance, version);
     return ADDON_STATUS_OK;

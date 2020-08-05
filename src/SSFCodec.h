@@ -9,20 +9,18 @@
 #pragma once
 
 #include "CircularBuffer.h"
-
-#include <kodi/addon-instance/AudioDecoder.h>
-#include <kodi/Filesystem.h>
+#include "dcsound.h"
+#include "psflib.h"
+#include "satsound.h"
+#include "sega.h"
+#include "yam.h"
 
 #include <atomic>
-#include <vector>
+#include <kodi/Filesystem.h>
+#include <kodi/addon-instance/AudioDecoder.h>
 #include <math.h>
 #include <mutex>
-
-#include "sega.h"
-#include "dcsound.h"
-#include "satsound.h"
-#include "yam.h"
-#include "psflib.h"
+#include <vector>
 
 struct sdsf_load_state
 {
@@ -33,8 +31,11 @@ struct psf_info_meta_state
 {
   std::string title;
   std::string artist;
+  std::string game;
+  std::string genre;
   std::string year;
   std::string replaygain;
+  std::string comment;
 
   bool utf8 = false;
 
@@ -48,15 +49,18 @@ public:
   CSSFCodec(KODI_HANDLE instance, const std::string& version);
   ~CSSFCodec() override;
 
-  bool Init(const std::string& filename, unsigned int filecache,
-            int& channels, int& samplerate,
-            int& bitspersample, int64_t& totaltime,
-            int& bitrate, AEDataFormat& format,
-            std::vector<AEChannel>& channellist) override;
+  bool Init(const std::string& filename,
+            unsigned int filecache,
+            int& channels,
+            int& samplerate,
+            int& bitspersample,
+            int64_t& totaltime,
+            int& bitrate,
+            AudioEngineDataFormat& format,
+            std::vector<AudioEngineChannel>& channellist) override;
   int ReadPCM(uint8_t* buffer, int size, int& actualsize) override;
   int64_t Seek(int64_t time) override;
-  bool ReadTag(const std::string& file, std::string& title,
-               std::string& artist, int& length) override;
+  bool ReadTag(const std::string& filename, kodi::addon::AudioDecoderInfoTag& tag) override;
 
 private:
   static void SSFPrintMessage(void* context, const char* message);
@@ -73,8 +77,8 @@ private:
 
   inline void calcfade()
   {
-    m_songLength = mul_div(m_tagSongMs-m_posDelta,44100,1000);
-    m_fadeLength = mul_div(m_tagFadeMs,44100,1000);
+    m_songLength = mul_div(m_tagSongMs - m_posDelta, 44100, 1000);
+    m_fadeLength = mul_div(m_tagFadeMs, 44100, 1000);
   }
 
   inline int mul_div(int number, int numerator, int denominator)
@@ -82,7 +86,7 @@ private:
     long long ret = number;
     ret *= numerator;
     ret /= denominator;
-    return (int) ret;
+    return (int)ret;
   }
 
   int m_cfgDefaultSampleRate = 44100;
@@ -118,4 +122,3 @@ private:
   int m_tagSongMs;
   int m_tagFadeMs;
 };
-
