@@ -16,6 +16,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n % 10 != 1 || n % 100 == 11;\n"
 
+msgctxt "Addon Summary"
+msgid "Sega SSF/DSF Audio Decoder"
+msgstr ""
+
+msgctxt "Addon Description"
+msgid "Sega Saturn Sound Format (SSF) and Dreamcast Sound Format (DSF) is an audio format based on PSF. It stores audio ripped from the ROMs of Sega Saturn and Sega Dreamcast games."
+msgstr ""
+
 #[Consistency] Make terms, settings names, brands and other minutiae, consistent throughout file.
 #[Capitalization] Avoid capitalizing every second word. See http://grammarist.com/capitalization/
 #For example, prefer wording as "This new string" instead of "This New String".
