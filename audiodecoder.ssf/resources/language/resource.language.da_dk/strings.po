@@ -5,9 +5,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: KODI Addons\n"
-"Report-Msgid-Bugs-To: https://github.com/xbmc/audiodecoder.ssf/issues/\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-07-18 21:09+0000\n"
+"PO-Revision-Date: 2021-07-29 19:24+0000\n"
 "Last-Translator: Christian Gade <gade@kodi.tv>\n"
 "Language-Team: Danish <https://kodi.weblate.cloud/projects/kodi-add-ons-audio-decodersencoders/audiodecoder-ssf/da_dk/>\n"
 "Language: da_dk\n"
@@ -15,15 +15,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.7.1\n"
+"X-Generator: Weblate 4.7.2\n"
 
 msgctxt "Addon Summary"
 msgid "Sega SSF/DSF Audio Decoder"
-msgstr ""
+msgstr "Sega SSF/DSF lydafkoder"
 
 msgctxt "Addon Description"
 msgid "Sega Saturn Sound Format (SSF) and Dreamcast Sound Format (DSF) is an audio format based on PSF. It stores audio ripped from the ROMs of Sega Saturn and Sega Dreamcast games."
-msgstr ""
+msgstr "Sega Saturn Sound Format (SSF) og Dreamcast Sound Format (DSF) er et lydformat baseret på PSF. Det gemmer lyd rippet fra ROM'erne i Sega Saturn- og Sega Dreamcast-spil."
 
 # [Consistency] Make terms, settings names, brands and other minutiae, consistent throughout file.
 # [Capitalization] Avoid capitalizing every second word. See http://grammarist.com/capitalization/
