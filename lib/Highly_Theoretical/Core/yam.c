@@ -2145,6 +2145,20 @@ static uint32 generate_samples(
       f = ((chan->frcphase) >> 4) & 0x3FFF;
       s = (s_next * f) + (s_cur * (0x4000-f));
       s >>= 14; // s is 16-bit
+      // Apply filter, if we want it
+      if(!(chan->lpoff)) {
+        uint32 fv = chan->lpflevel;
+        uint32 qv = chan->q & 0x1F;
+        sint32 f = (((fv & 0xFF) | 0x100) << 4) >> ((fv >> 8) ^ 0x1F);
+        sint32 q = qtable[qv];
+        if (!f) s = 0;
+        else s = f * s + (0x2000 - f + q) * (chan->lpp1) - q * (chan->lpp2);
+        s >>= 13;
+	if (s < -0x8000) s = -0x8000;
+	else if (s > 0x7FFF) s = 0x7FFF;
+        chan->lpp2 = chan->lpp1;
+        chan->lpp1 = s;
+      }
       // Apply attenuation, if we want it
       if(!(chan->voff)) {
         uint32 attenuation;
@@ -2182,17 +2196,6 @@ static uint32 generate_samples(
       // Store in ring modulation buffer, if we're SCSP and it's enabled
       if(state->version == 1 && !chan->stwinh) {
         state->ringbuf[state->bufptr] = s;
-      }
-      // Apply filter, if we want it
-      if(!(chan->lpoff)) {
-        uint32 fv = chan->lpflevel;
-        uint32 qv = chan->q & 0x1F;
-        sint32 f = (((fv & 0xFF) | 0x100) << 4) >> ((fv >> 8) ^ 0x1F);
-        sint32 q = qtable[qv];
-        s = f * s + (0x2000 - f + q) * (chan->lpp1) - q * (chan->lpp2);
-        s >>= 13;
-        chan->lpp2 = chan->lpp1;
-        chan->lpp1 = s;
       }
       // Write output
       s <<= 4;
