@@ -43,7 +43,7 @@ struct psf_info_meta_state
   int tagFadeMs = 0;
 };
 
-class ATTRIBUTE_HIDDEN CSSFCodec : public kodi::addon::CInstanceAudioDecoder
+class ATTRIBUTE_DLL_LOCAL CSSFCodec : public kodi::addon::CInstanceAudioDecoder
 {
 public:
   CSSFCodec(KODI_HANDLE instance, const std::string& version);
@@ -58,7 +58,7 @@ public:
             int& bitrate,
             AudioEngineDataFormat& format,
             std::vector<AudioEngineChannel>& channellist) override;
-  int ReadPCM(uint8_t* buffer, int size, int& actualsize) override;
+  int ReadPCM(uint8_t* buffer, size_t size, size_t& actualsize) override;
   int64_t Seek(int64_t time) override;
   bool ReadTag(const std::string& filename, kodi::addon::AudioDecoderInfoTag& tag) override;
 

@@ -115,3 +115,27 @@ msgstr ""
 msgctxt "#30020"
 msgid "Emulate DSP using dynamic recompiler."
 msgstr ""
+
+#. Supported file extension description about ".ssf"
+#: audiodecoder.ssf/addon.xml.in
+msgctxt "#30100"
+msgid "The extension is associated with the Sega Saturn, a 32-bit video gaming console."
+msgstr ""
+
+#. Supported file extension description about ".minissf"
+#: audiodecoder.ssf/addon.xml.in
+msgctxt "#30101"
+msgid "Similar to a .SSF file; contains imported sequence data for songs from .SSFLIB files located in the same directory."
+msgstr ""
+
+#. Supported file extension description about ".dsf"
+#: audiodecoder.ssf/addon.xml.in
+msgctxt "#30102"
+msgid "The extension is associated with the Sega Dreamcast, an another video gaming console."
+msgstr ""
+
+#. Supported file extension description about ".minidsf"
+#: audiodecoder.ssf/addon.xml.in
+msgctxt "#30103"
+msgid "Similar to a .DSF file; contains imported sequence data for songs from .DSFLIB files located in the same directory."
+msgstr ""
