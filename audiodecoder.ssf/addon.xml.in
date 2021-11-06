@@ -8,9 +8,23 @@
   <extension
     point="kodi.audiodecoder"
     name="ssf"
-    extension=".ssf|.minissf|.dsf|.minidsf"
     tags="true"
-    library_@PLATFORM@="@LIBRARY_FILENAME@"/>
+    library_@PLATFORM@="@LIBRARY_FILENAME@">
+    <support>
+      <extension name=".ssf">
+        <description>30100</description>
+      </extension>
+      <extension name=".minissf">
+        <description>30101</description>
+      </extension>
+      <extension name=".dsf">
+        <description>30102</description>
+      </extension>
+      <extension name=".minidsf">
+        <description>30103</description>
+      </extension>
+    </support>
+  </extension>
   <extension point="xbmc.addon.metadata">
     <platform>@PLATFORM@</platform>
     <license>GPL-2.0-or-later</license>
