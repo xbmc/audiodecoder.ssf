@@ -43,10 +43,10 @@ struct psf_info_meta_state
   int tagFadeMs = 0;
 };
 
-class ATTRIBUTE_DLL_LOCAL CSSFCodec : public kodi::addon::CInstanceAudioDecoder
+class ATTR_DLL_LOCAL CSSFCodec : public kodi::addon::CInstanceAudioDecoder
 {
 public:
-  CSSFCodec(KODI_HANDLE instance, const std::string& version);
+  CSSFCodec(const kodi::addon::IInstanceInfo& instance);
   ~CSSFCodec() override;
 
   bool Init(const std::string& filename,
