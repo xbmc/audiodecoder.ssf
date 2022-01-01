@@ -245,8 +245,7 @@ extern "C"
 
 //------------------------------------------------------------------------------
 
-CSSFCodec::CSSFCodec(KODI_HANDLE instance, const std::string& version)
-  : CInstanceAudioDecoder(instance, version)
+CSSFCodec::CSSFCodec(const kodi::addon::IInstanceInfo& instance) : CInstanceAudioDecoder(instance)
 {
 }
 
@@ -298,20 +297,20 @@ bool CSSFCodec::Init(const std::string& filename,
     return false;
   }
 
-  kodi::CheckSettingBoolean("suppressopeningsilence", m_cfgSuppressOpeningSilence);
-  kodi::CheckSettingBoolean("suppressendsilence", m_cfgSuppressEndSilence);
-  kodi::CheckSettingInt("endsilenceseconds", m_cfgEndSilenceSeconds);
-  kodi::CheckSettingBoolean("dry", m_cfgDry);
-  kodi::CheckSettingBoolean("dsp", m_cfgDSP);
-  kodi::CheckSettingBoolean("dspdynamicrec", m_cfgDSPDynamicRec);
+  kodi::addon::CheckSettingBoolean("suppressopeningsilence", m_cfgSuppressOpeningSilence);
+  kodi::addon::CheckSettingBoolean("suppressendsilence", m_cfgSuppressEndSilence);
+  kodi::addon::CheckSettingInt("endsilenceseconds", m_cfgEndSilenceSeconds);
+  kodi::addon::CheckSettingBoolean("dry", m_cfgDry);
+  kodi::addon::CheckSettingBoolean("dsp", m_cfgDSP);
+  kodi::addon::CheckSettingBoolean("dspdynamicrec", m_cfgDSPDynamicRec);
 
   m_tagSongMs = info_state.tagSongMs;
   m_tagFadeMs = info_state.tagFadeMs;
 
   if (!m_tagSongMs)
   {
-    m_tagSongMs = kodi::GetSettingInt("defaultlength") * 1000;
-    m_tagFadeMs = kodi::GetSettingInt("defaultfade");
+    m_tagSongMs = kodi::addon::GetSettingInt("defaultlength") * 1000;
+    m_tagFadeMs = kodi::addon::GetSettingInt("defaultfade");
   }
 
   if (!Load())
@@ -684,17 +683,14 @@ void CSSFCodec::SSFPrintMessage(void* context, const char* message)
 
 //------------------------------------------------------------------------------
 
-class ATTRIBUTE_DLL_LOCAL CMyAddon : public kodi::addon::CAddonBase
+class ATTR_DLL_LOCAL CMyAddon : public kodi::addon::CAddonBase
 {
 public:
   CMyAddon() = default;
-  ADDON_STATUS CreateInstance(int instanceType,
-                              const std::string& instanceID,
-                              KODI_HANDLE instance,
-                              const std::string& version,
-                              KODI_HANDLE& addonInstance) override
+  ADDON_STATUS CreateInstance(const kodi::addon::IInstanceInfo& instance,
+                              KODI_ADDON_INSTANCE_HDL& hdl) override
   {
-    addonInstance = new CSSFCodec(instance, version);
+    hdl = new CSSFCodec(instance);
     return ADDON_STATUS_OK;
   }
   virtual ~CMyAddon() = default;
