@@ -5,24 +5,25 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: KODI Addons\n"
-"Report-Msgid-Bugs-To: https://github.com/xbmc/audiodecoder.ssf/issues/\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2022-08-16 02:03+0000\n"
+"Last-Translator: Massimo Pissarello <mapi68@gmail.com>\n"
+"Language-Team: Italian <https://kodi.weblate.cloud/projects/kodi-add-ons-audio-decodersencoders/audiodecoder-ssf/it_it/>\n"
 "Language: it_it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.13\n"
 
 msgctxt "Addon Summary"
 msgid "Sega SSF/DSF Audio Decoder"
-msgstr ""
+msgstr "Sega SSF/DSF Audio Decoder"
 
 msgctxt "Addon Description"
 msgid "Sega Saturn Sound Format (SSF) and Dreamcast Sound Format (DSF) is an audio format based on PSF. It stores audio ripped from the ROMs of Sega Saturn and Sega Dreamcast games."
-msgstr ""
+msgstr "Sega Saturn Sound Format (SSF) e Dreamcast Sound Format (DSF) sono un formato audio basato su PSF. Memorizza l'audio estratto dalle ROM dei giochi Sega Saturn e Sega Dreamcast."
 
 # [Consistency] Make terms, settings names, brands and other minutiae, consistent throughout file.
 # [Capitalization] Avoid capitalizing every second word. See http://grammarist.com/capitalization/
@@ -33,84 +34,84 @@ msgstr ""
 # For example, "Press \"OK\" for \"All seasons\"" instead of "Press OK for All seasons" after first word.
 msgctxt "#30000"
 msgid "Default length"
-msgstr ""
+msgstr "Durata predefinita"
 
 msgctxt "#30001"
 msgid "Used if specified file does not provide the length."
-msgstr ""
+msgstr "Usato se il file specificato non fornisce la durata."
 
 msgctxt "#30002"
 msgid "unused"
-msgstr ""
+msgstr "inutilizzato"
 
 msgctxt "#30003"
 msgid "{0:d} s"
-msgstr ""
+msgstr "{0:d} s"
 
 msgctxt "#30004"
 msgid "Default fade out time"
-msgstr ""
+msgstr "Tempo di dissolvenza predefinito"
 
 msgctxt "#30005"
 msgid "Used if specified file does not provide the length and fade."
-msgstr ""
+msgstr "Usato se il file specificato non fornisce la durata e la dissolvenza."
 
 msgctxt "#30006"
 msgid "unused"
-msgstr ""
+msgstr "inutilizzato"
 
 msgctxt "#30007"
 msgid "{0:d} ms"
-msgstr ""
+msgstr "{0:d} ms"
 
 msgctxt "#30008"
 msgid "Suppress opening silence"
-msgstr ""
+msgstr "Rimuovi silenzio iniziale"
 
 msgctxt "#30009"
 msgid "Some files start with silent data, this prevents it and looks for the beginning."
-msgstr ""
+msgstr "Alcuni file iniziano con dati silenziosi, questo lo impedisce e cerca l'inizio."
 
 msgctxt "#30010"
 msgid "Suppress end silence"
-msgstr ""
+msgstr "Rimuovi silenzio finale"
 
 msgctxt "#30011"
 msgid "Some files end with silent data, this prevents it and looks for the end."
-msgstr ""
+msgstr "Alcuni file terminano con dati silenziosi, questo lo impedisce e cerca la fine."
 
 msgctxt "#30012"
 msgid "Second of silence to check"
-msgstr ""
+msgstr "Secondi di silenzio da controllare"
 
 msgctxt "#30013"
 msgid "How many silent seconds are allowed before playback is stopped."
-msgstr ""
+msgstr "Quanti secondi di silenzio sono consentiti prima che la riproduzione venga interrotta."
 
 msgctxt "#30014"
 msgid "{0:d} s"
-msgstr ""
+msgstr "{0:d} s"
 
 msgctxt "#30015"
 msgid "Direct output"
-msgstr ""
+msgstr "Uscita diretta"
 
 msgctxt "#30016"
 msgid "Enable direct (dry) output."
-msgstr ""
+msgstr "Abilita uscita diretta (dry)."
 
 msgctxt "#30017"
 msgid "DSP emulation"
-msgstr ""
+msgstr "Emulazione DSP"
 
 msgctxt "#30018"
 msgid "Enable DSP emulation (for reverb, etc.)."
-msgstr ""
+msgstr "Abilita emulazione DSP (per riverbero, ecc.)."
 
 msgctxt "#30019"
 msgid "Dynamic recompiler"
-msgstr ""
+msgstr "Ricompilatore dinamico"
 
 msgctxt "#30020"
 msgid "Emulate DSP using dynamic recompiler."
-msgstr ""
+msgstr "Emula DSP usando il ricompilatore dinamico."
