@@ -7,23 +7,23 @@ msgstr ""
 "Project-Id-Version: KODI Addons\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-12-14 15:13+0000\n"
-"Last-Translator: Christian Gade <gade@kodi.tv>\n"
+"PO-Revision-Date: 2023-01-28 20:15+0000\n"
+"Last-Translator: skypichat <skypichat@hotmail.fr>\n"
 "Language-Team: French (France) <https://kodi.weblate.cloud/projects/kodi-add-ons-audio-decodersencoders/audiodecoder-ssf/fr_fr/>\n"
 "Language: fr_fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.9.1\n"
+"X-Generator: Weblate 4.15.2\n"
 
 msgctxt "Addon Summary"
 msgid "Sega SSF/DSF Audio Decoder"
-msgstr ""
+msgstr "Décodeur audio Sega SSF/DSF"
 
 msgctxt "Addon Description"
 msgid "Sega Saturn Sound Format (SSF) and Dreamcast Sound Format (DSF) is an audio format based on PSF. It stores audio ripped from the ROMs of Sega Saturn and Sega Dreamcast games."
-msgstr ""
+msgstr "Sega Saturn Sound Format (SSF) et Dreamcast Sound Format (DSF) est un format audio basé sur PSF. Il stocke l'audio extrait des ROM des jeux Sega Saturn et Sega Dreamcast."
 
 # [Consistency] Make terms, settings names, brands and other minutiae, consistent throughout file.
 # [Capitalization] Avoid capitalizing every second word. See http://grammarist.com/capitalization/
@@ -34,7 +34,7 @@ msgstr ""
 # For example, "Press \"OK\" for \"All seasons\"" instead of "Press OK for All seasons" after first word.
 msgctxt "#30000"
 msgid "Default length"
-msgstr ""
+msgstr "Longueur standard"
 
 msgctxt "#30001"
 msgid "Used if specified file does not provide the length."
@@ -50,15 +50,15 @@ msgstr "{0:d} s"
 
 msgctxt "#30004"
 msgid "Default fade out time"
-msgstr ""
+msgstr "Temps de fondu par défaut"
 
 msgctxt "#30005"
 msgid "Used if specified file does not provide the length and fade."
-msgstr ""
+msgstr "Utilisé si le fichier spécifié ne fournit pas la longueur et le fondu."
 
 msgctxt "#30006"
 msgid "unused"
-msgstr ""
+msgstr "Inutilisé"
 
 msgctxt "#30007"
 msgid "{0:d} ms"
@@ -70,7 +70,7 @@ msgstr "Suppression du silence de début"
 
 msgctxt "#30009"
 msgid "Some files start with silent data, this prevents it and looks for the beginning."
-msgstr ""
+msgstr "Quelques fichiers commencent avec des données en silencieux, ceci l'empêche et cherche le début."
 
 msgctxt "#30010"
 msgid "Suppress end silence"
@@ -78,15 +78,15 @@ msgstr "Suppression du silence de fin"
 
 msgctxt "#30011"
 msgid "Some files end with silent data, this prevents it and looks for the end."
-msgstr ""
+msgstr "Quelques fichiers se terminent avec des données en silencieux, ceci l'empêche et cherche la fin."
 
 msgctxt "#30012"
 msgid "Second of silence to check"
-msgstr ""
+msgstr "Secondes en silencieux à tester"
 
 msgctxt "#30013"
 msgid "How many silent seconds are allowed before playback is stopped."
-msgstr ""
+msgstr "Secondes sans son qui seront acceptés avant d'arrêter la lecture."
 
 msgctxt "#30014"
 msgid "{0:d} s"
@@ -94,24 +94,24 @@ msgstr "{0:d} s"
 
 msgctxt "#30015"
 msgid "Direct output"
-msgstr ""
+msgstr "Sortie directe"
 
 msgctxt "#30016"
 msgid "Enable direct (dry) output."
-msgstr ""
+msgstr "Activer la sortie directe (dry)."
 
 msgctxt "#30017"
 msgid "DSP emulation"
-msgstr ""
+msgstr "Émulation DSP"
 
 msgctxt "#30018"
 msgid "Enable DSP emulation (for reverb, etc.)."
-msgstr ""
+msgstr "Activer l'émulation DSP (pour la réverbération, etc.)."
 
 msgctxt "#30019"
 msgid "Dynamic recompiler"
-msgstr ""
+msgstr "Recompilateur dynamique"
 
 msgctxt "#30020"
 msgid "Emulate DSP using dynamic recompiler."
-msgstr ""
+msgstr "Émuler DSP à l'aide d'un recompilateur dynamique."
