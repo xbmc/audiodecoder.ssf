@@ -44,6 +44,7 @@
     <summary lang="it_IT">Decodificatore audio Sega SSF/DSF</summary>
     <summary lang="ko_KR">Sega SSF/DSF 오디오 디코더</summary>
     <summary lang="ru_RU">Аудиодекодер Sega SSF/DSF</summary>
+    <summary lang="sv_SE">Sega SSF/DSF-ljudavkodare</summary>
     <summary lang="zh_CN">世嘉 SSF/DSF 音频解码器</summary>
     <summary lang="zh_TW">Sega SSF/DSF 音訊解碼器</summary>
     <description lang="ca_ES">Sega Saturn Sound Format (SSF) i Dreamcast Sound Format (DSF) és un format d&apos;àudio basat en PSF. Emmagatzema àudio extret de les ROM dels jocs Sega Saturn i Sega Dreamcast.</description>
@@ -56,6 +57,7 @@
     <description lang="it_IT">Sega Saturn Sound Format (SSF) e Dreamcast Sound Format (DSF) sono un formato audio basato su PSF. Memorizza l&apos;audio estratto dalle ROM dei giochi Sega Saturn e Sega Dreamcast.</description>
     <description lang="ko_KR">Sega Saturn Sound Format(SSF) 및 Dreamcast Sound Format(DSF)은 PSF를 기반으로 하는 오디오 형식입니다. Sega Saturn 및 Sega Dreamcast 게임의 ROM에서 추출한 오디오를 저장합니다.</description>
     <description lang="ru_RU">Sega Saturn Sound Format (SSF) и Dreamcast Sound Format (DSF) - это аудиоформаты, основанные на PSF. В них хранятся аудио, извлеченные из ПЗУ игр Sega Saturn и Sega Dreamcast.</description>
+    <description lang="sv_SE">Sega Saturn Sound Format (SSF) och Dreamcast Sound Format (DSF) är ett ljudformat baserat på PSF. Det lagrar ljud som extraherats från ROM:arna i Sega Saturn- och Sega Dreamcast-spel.</description>
     <description lang="zh_CN">世嘉土星声音格式（SSF）和梦工厂声音格式（DSF）是基于 PSF 的音频格式。它存储从世嘉土星和世嘉梦工厂主机游戏 ROM 中提取的音频。</description>
   </extension>
 </addon>
