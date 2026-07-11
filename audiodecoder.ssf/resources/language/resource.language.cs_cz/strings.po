@@ -5,25 +5,25 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: KODI Addons\n"
-"Report-Msgid-Bugs-To: https://github.com/xbmc/audiodecoder.ssf/issues/\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-07-03 11:29+0000\n"
-"Last-Translator: Jan Krejčí <hokronx@gmail.com>\n"
+"PO-Revision-Date: 2026-07-11 09:16+0000\n"
+"Last-Translator: Michal Várady <miko.vaji@gmail.com>\n"
 "Language-Team: Czech <https://kodi.weblate.cloud/projects/kodi-add-ons-audio-decodersencoders/audiodecoder-ssf/cs_cz/>\n"
 "Language: cs_cz\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.7.1\n"
+"X-Generator: Weblate 2026.7.1\n"
 
 msgctxt "Addon Summary"
 msgid "Sega SSF/DSF Audio Decoder"
-msgstr ""
+msgstr "Dekodér zvuku Sega SSF/DSF"
 
 msgctxt "Addon Description"
 msgid "Sega Saturn Sound Format (SSF) and Dreamcast Sound Format (DSF) is an audio format based on PSF. It stores audio ripped from the ROMs of Sega Saturn and Sega Dreamcast games."
-msgstr ""
+msgstr "Sega Saturn Sound Format (SSF) a Dreamcast Sound Format (DSF) jsou zvukové formáty založené na PSF. Ukládají zvuk extrahovaný z ROM her pro Sega Saturn a Sega Dreamcast."
 
 # [Consistency] Make terms, settings names, brands and other minutiae, consistent throughout file.
 # [Capitalization] Avoid capitalizing every second word. See http://grammarist.com/capitalization/
@@ -38,80 +38,80 @@ msgstr "Výchozí délka"
 
 msgctxt "#30001"
 msgid "Used if specified file does not provide the length."
-msgstr ""
+msgstr "Použije se, pokud zadaný soubor neposkytuje délku."
 
 msgctxt "#30002"
 msgid "unused"
-msgstr ""
+msgstr "nepoužito"
 
 msgctxt "#30003"
 msgid "{0:d} s"
-msgstr ""
+msgstr "{0:d} s"
 
 msgctxt "#30004"
 msgid "Default fade out time"
-msgstr ""
+msgstr "Výchozí doba zeslabení"
 
 msgctxt "#30005"
 msgid "Used if specified file does not provide the length and fade."
-msgstr ""
+msgstr "Použije se, pokud zadaný soubor neposkytuje délku a dobu zeslabení."
 
 msgctxt "#30006"
 msgid "unused"
-msgstr ""
+msgstr "nepoužito"
 
 msgctxt "#30007"
 msgid "{0:d} ms"
-msgstr ""
+msgstr "{0:d} ms"
 
 msgctxt "#30008"
 msgid "Suppress opening silence"
-msgstr ""
+msgstr "Potlačit počáteční ticho"
 
 msgctxt "#30009"
 msgid "Some files start with silent data, this prevents it and looks for the beginning."
-msgstr ""
+msgstr "Některé soubory začínají tichem; tato volba ho přeskočí a vyhledá začátek."
 
 msgctxt "#30010"
 msgid "Suppress end silence"
-msgstr ""
+msgstr "Potlačit koncové ticho"
 
 msgctxt "#30011"
 msgid "Some files end with silent data, this prevents it and looks for the end."
-msgstr ""
+msgstr "Některé soubory končí tichem; tato volba ho přeskočí a vyhledá konec."
 
 msgctxt "#30012"
 msgid "Second of silence to check"
-msgstr ""
+msgstr "Sekundy ticha ke kontrole"
 
 msgctxt "#30013"
 msgid "How many silent seconds are allowed before playback is stopped."
-msgstr ""
+msgstr "Kolik sekund ticha je povoleno, než se přehrávání zastaví."
 
 msgctxt "#30014"
 msgid "{0:d} s"
-msgstr ""
+msgstr "{0:d} s"
 
 msgctxt "#30015"
 msgid "Direct output"
-msgstr ""
+msgstr "Přímý výstup"
 
 msgctxt "#30016"
 msgid "Enable direct (dry) output."
-msgstr ""
+msgstr "Povolit přímý výstup bez efektů."
 
 msgctxt "#30017"
 msgid "DSP emulation"
-msgstr ""
+msgstr "Emulace DSP"
 
 msgctxt "#30018"
 msgid "Enable DSP emulation (for reverb, etc.)."
-msgstr ""
+msgstr "Povolit emulaci DSP (např. pro reverb)."
 
 msgctxt "#30019"
 msgid "Dynamic recompiler"
-msgstr ""
+msgstr "Dynamický rekompilátor"
 
 msgctxt "#30020"
 msgid "Emulate DSP using dynamic recompiler."
-msgstr ""
+msgstr "Emulovat DSP pomocí dynamického rekompilátoru."
